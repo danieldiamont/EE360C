@@ -110,19 +110,19 @@ public class Program1 extends AbstractProgram1 {
     	StudentPreferenceListMaker(studentList, adviserList, marriage);
     	
     	for(int i = 0; i < adviserList.size(); i++) {
-    		System.out.println("Advisor: " + i);
-    		for(int j = 0; j < 4; j++) {
-    			System.out.println(adviserList.get(i).prefList.get(j).getNum());
+    		System.out.println("\n\nAdvisor: " + i);
+    		for(int j = 0; j < adviserList.get(i).prefList.size(); j++) {
+    			System.out.print(adviserList.get(i).prefList.get(j).getNum() + " ");
     		}
     		
     	}
     	
     	for(int i = 0; i < studentList.size(); i++) {
     		System.out.println("\n\nStudent: " + i);
-    		for(int j = 0; j < 4; j++) {
-    			System.out.println(studentList.get(i).prefList.get(j).getNum());
+    		for(int j = 0; j < studentList.get(i).prefList.size(); j++) {
+    			System.out.print(studentList.get(i).prefList.get(j).getNum() + " ");
     		}
-    		
+    		System.out.println("");
     	}
     	
     	/*
@@ -246,24 +246,6 @@ public class Program1 extends AbstractProgram1 {
     	}
     	return -1; //there does not exist a free student
     }
-    
-    /*
-     * don't really need this, as each advisor already has a student at the top of his preference list right?
-     */
-//    public ArrayList<Student> checkOtherStudents(ArrayList<Student> list, int curStudent) {
-//    	
-//    	ArrayList<Student> otherStudents = new ArrayList<Student>();
-//    	
-//    	for(int i = curStudent - 1; list.get(i).getGPA() == list.get(curStudent).getGPA(); i--)
-//    	{
-//    		if(list.get(i).isFree() == true) {
-//    			otherStudents.add(list.get(i));
-//    		}
-//    	}
-//    	
-//    	return otherStudents;
-//    	
-//    }
     
     public boolean currentStudentIsCloser(Matching marriage, 
 			int student, int possibleStudent, int possibleAdviser) {

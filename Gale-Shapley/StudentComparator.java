@@ -4,14 +4,17 @@ import java.util.Comparator;
 public class StudentComparator implements Comparator<Student> {
 
 	 Point2D p;
+	 boolean enableLoc;
 
      StudentComparator(Point2D p) {
 
           this.p = p;
+          this.enableLoc = true;
      }
      
      StudentComparator(){
     	 this.p = null;
+    	 enableLoc = false;
      }
      
 	@Override
@@ -23,7 +26,7 @@ public class StudentComparator implements Comparator<Student> {
 		else if(s1.getGPA() < s2.getGPA()) {
 			return -1;
 		}
-		else if(s1.getGPA() == s2.getGPA() && p.equals(null)) {
+		else if(s1.getGPA() == s2.getGPA() && !enableLoc) {
 			return 0;
 		}
 		else { //their GPA's are equal and we are sorting with location enabled as a parameter
