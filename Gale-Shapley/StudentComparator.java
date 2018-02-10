@@ -8,7 +8,10 @@ public class StudentComparator implements Comparator<Student> {
      StudentComparator(Point2D p) {
 
           this.p = p;
-
+     }
+     
+     StudentComparator(){
+    	 this.p = null;
      }
      
 	@Override
@@ -20,7 +23,10 @@ public class StudentComparator implements Comparator<Student> {
 		else if(s1.getGPA() < s2.getGPA()) {
 			return -1;
 		}
-		else { //their GPA's are equal
+		else if(s1.getGPA() == s2.getGPA() && p.equals(null)) {
+			return 0;
+		}
+		else { //their GPA's are equal and we are sorting with location enabled as a parameter
 			
 			double distanceS1 = p.distance(s1.getLoc());
 			double distanceS2 = p.distance(s2.getLoc());

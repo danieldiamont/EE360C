@@ -5,6 +5,7 @@
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -100,56 +101,25 @@ public class Program1 extends AbstractProgram1 {
     public Matching stableMarriageGaleShapley(Matching marriage) {
         /* TODO implement this function */
     	
-    	//create Advisers
-    	//Create Students
+    	/*
+    	 * Create student lists and adviser lists from file information.
+    	 * 
+    	 * Generate all the preference lists, stored in each Adviser and Student object
+    	 */
+    	ArrayList<Student> studentList = studentListMaker(marriage);
+    	ArrayList<Adviser> adviserList = AdviserListMaker(marriage, studentList);
+    	StudentPreferenceListMaker(studentList, adviserList, marriage);
+    	Collections.sort(studentList, new StudentComparator()); //sort student list in ascending GPA order
     	
-    	//Sort students in ascending GPA order
-    	//for each Adviser, generate their preference lists
-    	//for each student, generate their preference lists
+    	/*
+    	 * Begin modified Gale-Shapley algorithm
+    	 */
     	
-    	//launch into the algorithm
     	
         return null; /* TODO remove this line */
     }
     
-    public boolean currentStudentIsCloser(Matching marriage, 
-    			int student, int possibleStudent, int possibleAdviser) {
-    	
-    	Coordinate currentStudentLoc 
-		= marriage.getStudentLocations().get(student);
-		Coordinate possibleAdviserLoc 
-			= marriage.getAdviserLocations().get(possibleAdviser);
-		
-		Coordinate possibleStudentLoc 
-			= marriage.getStudentLocations().get(possibleStudent);
-		
-		double curStudentDist_x 
-			= Math.abs(currentStudentLoc.x-possibleAdviserLoc.x);
-		double curStudentDist_y 
-			= Math.abs(currentStudentLoc.y-possibleAdviserLoc.y);
-		double curStudentDist_d 
-			= Math.sqrt(Math.pow(curStudentDist_x, 2)
-				+ Math.pow(curStudentDist_y, 2));
-		
-		double possibleStudentDist_x 
-			= Math.abs(possibleStudentLoc.x-possibleAdviserLoc.x);
-		double possibleStudentDist_y 
-			= Math.abs(possibleStudentLoc.y-possibleAdviserLoc.y);
-		double possibleStudentDist_d 
-			= Math.abs(Math.pow(possibleStudentDist_x, 2)
-				+ Math.pow(possibleStudentDist_y, 2));
-		
-		if(curStudentDist_d < possibleStudentDist_d)
-		{
-			return true;
-		}
-		else
-			return false;
-    }
     
-    /*
-     * Sort all students in ascending order
-     */
     public ArrayList<Student> studentListMaker(Matching matching){
     	
     	//create arrayList of students
@@ -196,12 +166,47 @@ public class Program1 extends AbstractProgram1 {
 			
 			for(int j = 0; j < matching.getNumberOfAdvisers(); j++) {
 				
-				int advIndex = matching.getStudentPreference().get(i).get(j);
-				studentList.get(i).prefList.add(advList.get(j));				
+				int advIndex = matching.getStudentPreference().get(i).get(j);	
+				studentList.get(i).addToPrefList(advList.get(advIndex));
 
 			}
 			
 		}
     	
+    }
+    
+    public boolean currentStudentIsCloser(Matching marriage, 
+			int student, int possibleStudent, int possibleAdviser) {
+	
+		Coordinate currentStudentLoc 
+		= marriage.getStudentLocations().get(student);
+		Coordinate possibleAdviserLoc 
+			= marriage.getAdviserLocations().get(possibleAdviser);
+		
+		Coordinate possibleStudentLoc 
+			= marriage.getStudentLocations().get(possibleStudent);
+		
+		double curStudentDist_x 
+			= Math.abs(currentStudentLoc.x-possibleAdviserLoc.x);
+		double curStudentDist_y 
+			= Math.abs(currentStudentLoc.y-possibleAdviserLoc.y);
+		double curStudentDist_d 
+			= Math.sqrt(Math.pow(curStudentDist_x, 2)
+				+ Math.pow(curStudentDist_y, 2));
+		
+		double possibleStudentDist_x 
+			= Math.abs(possibleStudentLoc.x-possibleAdviserLoc.x);
+		double possibleStudentDist_y 
+			= Math.abs(possibleStudentLoc.y-possibleAdviserLoc.y);
+		double possibleStudentDist_d 
+			= Math.abs(Math.pow(possibleStudentDist_x, 2)
+				+ Math.pow(possibleStudentDist_y, 2));
+		
+		if(curStudentDist_d < possibleStudentDist_d)
+		{
+			return true;
+		}
+		else
+			return false;
     }
 }

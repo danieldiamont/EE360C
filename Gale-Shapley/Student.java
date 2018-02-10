@@ -5,7 +5,11 @@ public class Student {
 	
 	private double gpa;
 	
+	private boolean free;
+	
 	private Point2D location;
+	
+	private Adviser adv;
 	
 	private ArrayList<Adviser> prefList = new ArrayList<Adviser>();
 	
@@ -20,7 +24,7 @@ public class Student {
 	}
 	
 	public double getGPA() { 
-		return gpa;
+		return this.gpa;
 	}
 	
 	public Point2D getLoc() {
@@ -37,7 +41,25 @@ public class Student {
 	}
 	
 	public void addToPrefList(Adviser adv) {
-		prefList.add(adv);
+		this.prefList.add(adv);
+	}
+	
+	public boolean isFree() {
+		return this.free;
+	}
+	
+	public void linkWithAdviser(Adviser adv) {
+		this.free = false;
+		this.adv = adv;
+	}
+	
+	public Adviser returnAdviser() {
+		return this.adv;
+	}
+	
+	public void freeFromLink() {
+		this.free = true;
+		this.adv = null;
 	}
     		
 		
