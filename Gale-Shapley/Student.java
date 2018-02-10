@@ -1,10 +1,13 @@
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 public class Student {
 	
 	private double gpa;
 	
 	private Point2D location;
+	
+	private ArrayList<Adviser> prefList = new ArrayList<Adviser>();
 	
 	public Student() {
 		this.gpa = -100;
@@ -22,6 +25,21 @@ public class Student {
 	
 	public Point2D getLoc() {
 		return location;
-	}	
+	}
+	
+	public void setGPA(Double gpa) {
+		this.gpa = gpa;
+	}
+	
+	public void setLoc(Coordinate coord) {
+		
+		this.location.setLocation(coord.x, coord.y);
+	}
+	
+	public void addToPrefList(Adviser adv) {
+		prefList.add(adv);
+	}
+    		
+		
 
 }

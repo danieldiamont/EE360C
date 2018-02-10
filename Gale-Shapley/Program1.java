@@ -3,6 +3,7 @@
  * EID: <dd28977>
  */
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -26,7 +27,7 @@ public class Program1 extends AbstractProgram1 {
      */
     public boolean isStableMatching(Matching marriage) {
         /*
-         * Given a matching, for each pair in the matching, check to see if the advisor
+         * Given a matching, for each pair in the matching, check to see if the Adviser
          * and the student could be better off
          * 
          * Algorithm:
@@ -44,14 +45,14 @@ public class Program1 extends AbstractProgram1 {
     	{
     		int currentAdviser = student_matching.get(student);
     	
-    		//check the preference list of each student for the list of advisors
-    		for(int adviser = 0; adviser < student_matching.size(); adviser++) {
+    		//check the preference list of each student for the list of Advisers
+    		for(int Adviser = 0; Adviser < student_matching.size(); Adviser++) {
     			
-    			int possibleAdviser = marriage.getStudentPreference().get(student).get(adviser);
+    			int possibleAdviser = marriage.getStudentPreference().get(student).get(Adviser);
     			
-    			//if there exists an advisor that is better than the current advisor
+    			//if there exists an Adviser that is better than the current Adviser
     			if(possibleAdviser < currentAdviser) {
-    				//check if that advisor prefers the current student over possibleStudent
+    				//check if that Adviser prefers the current student over possibleStudent
     					//need to track GPA and location of current student
     					//need to track professor location
     				double currentStudentGPA = marriage.getStudentGPAs().get(student);
@@ -79,14 +80,14 @@ public class Program1 extends AbstractProgram1 {
     				}
     				else {
     					/*
-    					 * return true because possibleAdvisor does not prefer currentStudent
+    					 * return true because possibleAdviser does not prefer currentStudent
     					 */
     					return true;
     				}
     			}   				
     		}
     	}    				
-		return true; //there does not exist an advisor that currentStudent prefers more
+		return true; //there does not exist an Adviser that currentStudent prefers more
     }
 
     /**
@@ -99,7 +100,14 @@ public class Program1 extends AbstractProgram1 {
     public Matching stableMarriageGaleShapley(Matching marriage) {
         /* TODO implement this function */
     	
-    	//ensure kids are sorted by ascending GPA
+    	//create Advisers
+    	//Create Students
+    	
+    	//Sort students in ascending GPA order
+    	//for each Adviser, generate their preference lists
+    	//for each student, generate their preference lists
+    	
+    	//launch into the algorithm
     	
         return null; /* TODO remove this line */
     }
@@ -137,5 +145,63 @@ public class Program1 extends AbstractProgram1 {
 		}
 		else
 			return false;
+    }
+    
+    /*
+     * Sort all students in ascending order
+     */
+    public ArrayList<Student> studentListMaker(Matching matching){
+    	
+    	//create arrayList of students
+    	ArrayList<Student> studentList = new ArrayList<Student>();
+    	
+    	for(int i = 0; i < matching.getNumberOfStudents(); i++) {
+    		
+    		Student student = new Student();
+    		student.setGPA(matching.getStudentGPAs().get(i));
+    		student.setLoc(matching.getStudentLocations().get(i)); 
+    		
+    		studentList.add(student);
+    	}
+    	
+    	return studentList;
+    }
+    	
+    public ArrayList<Adviser> AdviserListMaker(Matching matching, ArrayList<Student> unSortedList){    	
+    	
+    	ArrayList<Adviser> AdviserList = new ArrayList<Adviser>();
+    	
+    	for(int i = 0; i < matching.getNumberOfAdvisers(); i++) {
+    	
+    		Adviser adv = new Adviser();
+    		
+    		//set location
+    		adv.setLoc(matching.getAdviserLocations().get(i));
+    		
+    		//generate preference list
+    		adv.creatPrefList(unSortedList);
+    		
+    		//add to adviserlist
+    		AdviserList.add(adv);
+    		
+    	}
+    	
+    	return AdviserList;
+    		
+    }
+    
+    public void StudentPreferenceListMaker(ArrayList<Student> studentList, ArrayList<Adviser> advList, Matching matching) {
+    	
+    	for(int i = 0; i < matching.getNumberOfStudents(); i++) {
+			
+			for(int j = 0; j < matching.getNumberOfAdvisers(); j++) {
+				
+				int advIndex = matching.getStudentPreference().get(i).get(j);
+				studentList.get(i).prefList.add(advList.get(j));				
+
+			}
+			
+		}
+    	
     }
 }
