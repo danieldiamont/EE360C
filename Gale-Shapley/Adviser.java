@@ -7,10 +7,10 @@ public class Adviser {
 	private Point2D location;
 	
 	private boolean free;
-	
+	private int num;
 	private Student std;
 	
-	private ArrayList<Student> prefList = new ArrayList<Student>();
+	ArrayList<Student> prefList = new ArrayList<Student>();
 	
 	public Adviser() {
 		
@@ -35,7 +35,10 @@ public class Adviser {
 	}
 	
 	public void setLoc(Coordinate coord) {
-		this.location.setLocation(coord.x, coord.y);
+		double x = coord.x;
+		double y = coord.y;
+		
+		this.location = new Point2D.Double(x,y);
 	}
 	
 	public boolean isFree() {
@@ -54,6 +57,14 @@ public class Adviser {
 	public void freeFromLink() {
 		this.free = true;
 		this.std = null;
+	}
+	
+	public int getNum() {
+		return this.num;
+	}
+	
+	public void setNum(int n) {
+		this.num = n;
 	}
 
 }

@@ -42,7 +42,6 @@ public class StudentComparator implements Comparator<Student> {
 				return 0;
 			}
 		}
-		return 0;
 	}
 
 }

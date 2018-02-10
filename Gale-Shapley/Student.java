@@ -10,8 +10,9 @@ public class Student {
 	private Point2D location;
 	
 	private Adviser adv;
+	private int num;
 	
-	private ArrayList<Adviser> prefList = new ArrayList<Adviser>();
+	ArrayList<Adviser> prefList = new ArrayList<Adviser>();
 	
 	public Student() {
 		this.gpa = -100;
@@ -37,7 +38,10 @@ public class Student {
 	
 	public void setLoc(Coordinate coord) {
 		
-		this.location.setLocation(coord.x, coord.y);
+		double x = coord.x;
+		double y = coord.y;
+		
+		this.location = new Point2D.Double(x,y);
 	}
 	
 	public void addToPrefList(Adviser adv) {
@@ -60,6 +64,14 @@ public class Student {
 	public void freeFromLink() {
 		this.free = true;
 		this.adv = null;
+	}
+	
+	public int getNum() {
+		return this.num;
+	}
+	
+	public void setNum(int n) {
+		this.num = n;
 	}
     		
 		

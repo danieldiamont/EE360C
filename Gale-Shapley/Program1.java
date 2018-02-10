@@ -27,7 +27,7 @@ public class Program1 extends AbstractProgram1 {
      * project documentation to help you with this.
      */
     public boolean isStableMatching(Matching marriage) {
-        /*
+        /**
          * Given a matching, for each pair in the matching, check to see if the Adviser
          * and the student could be better off
          * 
@@ -99,7 +99,6 @@ public class Program1 extends AbstractProgram1 {
      * @return A stable Matching.
      */
     public Matching stableMarriageGaleShapley(Matching marriage) {
-        /* TODO implement this function */
     	
     	/*
     	 * Create student lists and adviser lists from file information.
@@ -109,14 +108,66 @@ public class Program1 extends AbstractProgram1 {
     	ArrayList<Student> studentList = studentListMaker(marriage);
     	ArrayList<Adviser> adviserList = AdviserListMaker(marriage, studentList);
     	StudentPreferenceListMaker(studentList, adviserList, marriage);
-    	Collections.sort(studentList, new StudentComparator()); //sort student list in ascending GPA order
+    	
+    	for(int i = 0; i < adviserList.size(); i++) {
+    		System.out.println("Advisor: " + i);
+    		for(int j = 0; j < 4; j++) {
+    			System.out.println(adviserList.get(i).prefList.get(j).getNum());
+    		}
+    		
+    	}
+    	
+    	for(int i = 0; i < studentList.size(); i++) {
+    		System.out.println("\n\nStudent: " + i);
+    		for(int j = 0; j < 4; j++) {
+    			System.out.println(studentList.get(i).prefList.get(j).getNum());
+    		}
+    		
+    	}
     	
     	/*
     	 * Begin modified Gale-Shapley algorithm
     	 */
+    	int studentIndex = findFreeStudent(studentList);
+    	int adviserIndex = 0;
     	
+    	while(studentIndex != -1)
+    	{
+    		Student student = studentList.get(studentIndex);
     	
-        return null; /* TODO remove this line */
+    		
+    		while(!student.prefList.get(adviserIndex).isFree()) {
+    			
+    			adviserIndex++;
+    		}
+    		
+    		Adviser adv = student.prefList.get(adviserIndex);
+			
+			student.linkWithAdviser(adv);
+			
+			adv.linkWithStudent(student);
+			
+			studentIndex = findFreeStudent(studentList); //find another free student    	
+			
+			adviserIndex = 0;//reset adviser index
+    		
+    	}
+    	
+    	ArrayList<Integer> resMatching = new ArrayList<Integer>();
+    	
+    	for(int i = 0; i < studentList.size(); i++) {
+    		
+    		resMatching.add(adviserList.indexOf(studentList.get(i).returnAdviser()));
+    	}
+    	
+    	marriage.setResidentMatching(resMatching);
+    	
+    	for(int i= 0; i < studentList.size(); i++)
+    	{
+    		System.out.println("Matching : Student: " + i + "// " + " Advisor: " + studentList.get(i).returnAdviser().getNum());    		
+    	}
+    	
+        return marriage;
     }
     
     
@@ -129,9 +180,16 @@ public class Program1 extends AbstractProgram1 {
     		
     		Student student = new Student();
     		student.setGPA(matching.getStudentGPAs().get(i));
-    		student.setLoc(matching.getStudentLocations().get(i)); 
+    		student.setLoc(matching.getStudentLocations().get(i));
+    		student.freeFromLink();
     		
     		studentList.add(student);
+    	}
+    	
+    	Collections.sort(studentList, new StudentComparator()); //sort student list in ascending GPA order
+    	
+    	for(int i= 0; i < matching.getNumberOfStudents(); i++) {
+    		studentList.get(i).setNum(i);
     	}
     	
     	return studentList;
@@ -151,6 +209,9 @@ public class Program1 extends AbstractProgram1 {
     		//generate preference list
     		adv.creatPrefList(unSortedList);
     		
+    		adv.freeFromLink();
+    		
+    		adv.setNum(i);
     		//add to adviserlist
     		AdviserList.add(adv);
     		
@@ -174,6 +235,35 @@ public class Program1 extends AbstractProgram1 {
 		}
     	
     }
+    
+    public int findFreeStudent(ArrayList<Student> list) {
+    	
+    	for(int i = 0; i < list.size(); i++)
+    	{
+    		if(list.get(i).isFree() == true) {
+    			return i;
+    		}
+    	}
+    	return -1; //there does not exist a free student
+    }
+    
+    /*
+     * don't really need this, as each advisor already has a student at the top of his preference list right?
+     */
+//    public ArrayList<Student> checkOtherStudents(ArrayList<Student> list, int curStudent) {
+//    	
+//    	ArrayList<Student> otherStudents = new ArrayList<Student>();
+//    	
+//    	for(int i = curStudent - 1; list.get(i).getGPA() == list.get(curStudent).getGPA(); i--)
+//    	{
+//    		if(list.get(i).isFree() == true) {
+//    			otherStudents.add(list.get(i));
+//    		}
+//    	}
+//    	
+//    	return otherStudents;
+//    	
+//    }
     
     public boolean currentStudentIsCloser(Matching marriage, 
 			int student, int possibleStudent, int possibleAdviser) {
