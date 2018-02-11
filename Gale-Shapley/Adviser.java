@@ -10,7 +10,7 @@ public class Adviser {
 	private int num;
 	private Student std;
 	
-	ArrayList<Student> prefList = new ArrayList<Student>();
+	ArrayList<Student> prefList;
 	
 	public Adviser() {
 		
@@ -29,9 +29,13 @@ public class Adviser {
 	
 	public void creatPrefList(ArrayList<Student> listOfStudents) {
 		
-		Collections.sort(listOfStudents, new StudentComparator(this.location));
+//		this.prefList = listOfStudents;
+//		Collections.sort(prefList, new StudentComparator(this.location));
 		
-		this.prefList = listOfStudents; //prefList is now sorted list
+		this.prefList = new ArrayList<Student>(listOfStudents);
+		
+		Collections.sort(this.prefList, new StudentComparator(this.location));
+		
 	}
 	
 	public void setLoc(Coordinate coord) {

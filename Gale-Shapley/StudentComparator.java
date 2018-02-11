@@ -31,14 +31,14 @@ public class StudentComparator implements Comparator<Student> {
 		}
 		else { //their GPA's are equal and we are sorting with location enabled as a parameter
 			
-			double distanceS1 = p.distance(s1.getLoc());
-			double distanceS2 = p.distance(s2.getLoc());
+			double distanceS1 = this.p.distance(s1.getLoc());
+			double distanceS2 = this.p.distance(s2.getLoc());
 			
 			if(distanceS1 < distanceS2) {
-				return 1;
+				return -1;
 			}
 			else if(distanceS2 < distanceS1) {
-				return -1;
+				return 1;
 			}
 			else {
 				//we done goofed

@@ -131,27 +131,68 @@ public class Program1 extends AbstractProgram1 {
     	int studentIndex = findFreeStudent(studentList);
     	int adviserIndex = 0;
     	
-    	while(studentIndex != -1)
-    	{
-    		Student student = studentList.get(studentIndex);
-    	
+    	while(studentIndex != -1) {
     		
-    		while(!student.prefList.get(adviserIndex).isFree()) {
+    		Student student = studentList.get(studentIndex);
+    		
+    		System.out.println("Student " + studentIndex);
+    		Adviser adviser = null;
+    		boolean hasProposed = true;
+    		
+    		while(hasProposed) {
+    			adviser = student.prefList.get(adviserIndex);
+    			if (!student.proposition.contains(adviser) || student.proposition.size() == 0) {
+    				hasProposed = false;
+    			}
+    			else {
+    				System.out.println("Student " + student.getNum() + " has already proposed to Advisor " + adviser.getNum());
+        			adviserIndex++;
+    			}
     			
-    			adviserIndex++;
     		}
     		
-    		Adviser adv = student.prefList.get(adviserIndex);
-			
-			student.linkWithAdviser(adv);
-			
-			adv.linkWithStudent(student);
-			
-			studentIndex = findFreeStudent(studentList); //find another free student    	
-			
-			adviserIndex = 0;//reset adviser index
+    		System.out.println("Student " + student.getNum() + " is proposing to Advisor " + adviser.getNum());
     		
-    	}
+    		adviser = student.prefList.get(adviserIndex);
+    		
+    		student.proposition.add(adviser);
+    		
+    		if(adviser.isFree()) {
+    			System.out.println("Adviser " + adviser.getNum() + " is free.");
+    			student.linkWithAdviser(adviser);
+    			adviser.linkWithStudent(student);
+    			
+    			System.out.println("Student " + student.getNum() + " and Advisor " + adviser.getNum() + " become a pair. ");
+    			
+    			studentIndex = findFreeStudent(studentList);
+    			adviserIndex = 0;
+    		}
+    		else { //advisor has a student
+    			System.out.println("Adviser " + adviser.getNum() + " is matched.");
+    			
+    			Student studentPrime = adviser.returnStudent(); //advisor's student
+    			
+    			ArrayList<Student> list = new ArrayList<Student>();
+    			list.add(studentPrime);
+    			list.add(student);
+    			Collections.sort(list,new StudentComparator(adviser.getLoc()));
+    			
+    			if(list.get(0).equals(student)) {
+    				System.out.println("Adviser " + adviser.getNum() + " prefers Student " + student.getNum() + "\nStudent " + studentPrime.getNum() + " is freed.");
+    				studentPrime.freeFromLink();
+    				student.linkWithAdviser(adviser);
+        			adviser.linkWithStudent(student);
+        			System.out.println("Student " + student.getNum() + " and Advisor " + adviser.getNum() + " become a pair. ");
+        			studentIndex = findFreeStudent(studentList);
+        			adviserIndex = 0;
+    			}
+    			else {
+    				studentIndex = findFreeStudent(studentList);
+    				adviserIndex = 0;
+    			}
+    		}
+    		
+    	}    	
     	
     	ArrayList<Integer> resMatching = new ArrayList<Integer>();
     	
@@ -161,11 +202,6 @@ public class Program1 extends AbstractProgram1 {
     	}
     	
     	marriage.setResidentMatching(resMatching);
-    	
-    	for(int i= 0; i < studentList.size(); i++)
-    	{
-    		System.out.println("Matching : Student: " + i + "// " + " Advisor: " + studentList.get(i).returnAdviser().getNum());    		
-    	}
     	
         return marriage;
     }
@@ -206,8 +242,20 @@ public class Program1 extends AbstractProgram1 {
     		//set location
     		adv.setLoc(matching.getAdviserLocations().get(i));
     		
+    		System.out.println("\nPre-Sort list: \n");
+    		for(int a= 0; a < matching.getNumberOfAdvisers();a++)
+    		{
+    			System.out.print(unSortedList.get(a).getNum() + " ");    			
+    		}
     		//generate preference list
     		adv.creatPrefList(unSortedList);
+    		
+    		System.out.println("\nsorted: ");
+    		for(int b= 0; b < matching.getNumberOfAdvisers();b++)
+    		{
+    			System.out.print(adv.prefList.get(b).getNum() + " ");    			
+    		}
+    		
     		
     		adv.freeFromLink();
     		
@@ -238,8 +286,7 @@ public class Program1 extends AbstractProgram1 {
     
     public int findFreeStudent(ArrayList<Student> list) {
     	
-    	for(int i = 0; i < list.size(); i++)
-    	{
+    	for(int i = 0; i < list.size(); i++) {
     		if(list.get(i).isFree() == true) {
     			return i;
     		}
@@ -247,34 +294,33 @@ public class Program1 extends AbstractProgram1 {
     	return -1; //there does not exist a free student
     }
     
+    public int bestChoice(ArrayList<Student> list) {
+    	    	
+    	for(int i = 0; i < list.size(); i++) {
+    		if(list.get(i).isFree() == true) {
+    			return list.get(i).getNum();
+    		}
+    	}
+    	
+    	return -1;
+    }
+    
     public boolean currentStudentIsCloser(Matching marriage, 
 			int student, int possibleStudent, int possibleAdviser) {
 	
-		Coordinate currentStudentLoc 
-		= marriage.getStudentLocations().get(student);
-		Coordinate possibleAdviserLoc 
-			= marriage.getAdviserLocations().get(possibleAdviser);
+    	Coordinate coord = marriage.getStudentLocations().get(student);
+    	Point2D currentStudentLoc = new Point2D.Double(coord.x,coord.y);
+    	
+    	coord = marriage.getAdviserLocations().get(possibleAdviser);
+    	Point2D possibleAdviserLoc = new Point2D.Double(coord.x,coord.y);
+    	
+    	coord = marriage.getStudentLocations().get(possibleStudent);
+    	Point2D possibleStudentLoc = new Point2D.Double(coord.x,coord.y);
+    	
+    	double curStudentDist = possibleAdviserLoc.distance(currentStudentLoc);
+    	double possibleStudentDist = possibleAdviserLoc.distance(possibleStudentLoc);
 		
-		Coordinate possibleStudentLoc 
-			= marriage.getStudentLocations().get(possibleStudent);
-		
-		double curStudentDist_x 
-			= Math.abs(currentStudentLoc.x-possibleAdviserLoc.x);
-		double curStudentDist_y 
-			= Math.abs(currentStudentLoc.y-possibleAdviserLoc.y);
-		double curStudentDist_d 
-			= Math.sqrt(Math.pow(curStudentDist_x, 2)
-				+ Math.pow(curStudentDist_y, 2));
-		
-		double possibleStudentDist_x 
-			= Math.abs(possibleStudentLoc.x-possibleAdviserLoc.x);
-		double possibleStudentDist_y 
-			= Math.abs(possibleStudentLoc.y-possibleAdviserLoc.y);
-		double possibleStudentDist_d 
-			= Math.abs(Math.pow(possibleStudentDist_x, 2)
-				+ Math.pow(possibleStudentDist_y, 2));
-		
-		if(curStudentDist_d < possibleStudentDist_d)
+		if(curStudentDist < possibleStudentDist)
 		{
 			return true;
 		}
