@@ -109,22 +109,6 @@ public class Program1 extends AbstractProgram1 {
     	ArrayList<Adviser> adviserList = AdviserListMaker(marriage, studentList);
     	StudentPreferenceListMaker(studentList, adviserList, marriage);
     	
-    	for(int i = 0; i < adviserList.size(); i++) {
-    		System.out.println("\n\nAdvisor: " + i);
-    		for(int j = 0; j < adviserList.get(i).prefList.size(); j++) {
-    			System.out.print(adviserList.get(i).prefList.get(j).getNum() + " ");
-    		}
-    		
-    	}
-    	
-    	for(int i = 0; i < studentList.size(); i++) {
-    		System.out.println("\n\nStudent: " + i);
-    		for(int j = 0; j < studentList.get(i).prefList.size(); j++) {
-    			System.out.print(studentList.get(i).prefList.get(j).getNum() + " ");
-    		}
-    		System.out.println("");
-    	}
-    	
     	/*
     	 * Begin modified Gale-Shapley algorithm
     	 */
@@ -135,7 +119,6 @@ public class Program1 extends AbstractProgram1 {
     		
     		Student student = studentList.get(studentIndex);
     		
-    		System.out.println("Student " + studentIndex);
     		Adviser adviser = null;
     		boolean hasProposed = true;
     		
@@ -145,30 +128,23 @@ public class Program1 extends AbstractProgram1 {
     				hasProposed = false;
     			}
     			else {
-    				System.out.println("Student " + student.getNum() + " has already proposed to Advisor " + adviser.getNum());
         			adviserIndex++;
     			}
     			
     		}
-    		
-    		System.out.println("Student " + student.getNum() + " is proposing to Advisor " + adviser.getNum());
-    		
+    	    		
     		adviser = student.prefList.get(adviserIndex);
     		
     		student.proposition.add(adviser);
     		
     		if(adviser.isFree()) {
-    			System.out.println("Adviser " + adviser.getNum() + " is free.");
+    			
     			student.linkWithAdviser(adviser);
-    			adviser.linkWithStudent(student);
-    			
-    			System.out.println("Student " + student.getNum() + " and Advisor " + adviser.getNum() + " become a pair. ");
-    			
+    			adviser.linkWithStudent(student);    			
     			studentIndex = findFreeStudent(studentList);
     			adviserIndex = 0;
     		}
     		else { //advisor has a student
-    			System.out.println("Adviser " + adviser.getNum() + " is matched.");
     			
     			Student studentPrime = adviser.returnStudent(); //advisor's student
     			
@@ -178,11 +154,10 @@ public class Program1 extends AbstractProgram1 {
     			Collections.sort(list,new StudentComparator(adviser.getLoc()));
     			
     			if(list.get(0).equals(student)) {
-    				System.out.println("Adviser " + adviser.getNum() + " prefers Student " + student.getNum() + "\nStudent " + studentPrime.getNum() + " is freed.");
+
     				studentPrime.freeFromLink();
     				student.linkWithAdviser(adviser);
         			adviser.linkWithStudent(student);
-        			System.out.println("Student " + student.getNum() + " and Advisor " + adviser.getNum() + " become a pair. ");
         			studentIndex = findFreeStudent(studentList);
         			adviserIndex = 0;
     			}
@@ -241,32 +216,17 @@ public class Program1 extends AbstractProgram1 {
     		
     		//set location
     		adv.setLoc(matching.getAdviserLocations().get(i));
-    		
-    		System.out.println("\nPre-Sort list: \n");
-    		for(int a= 0; a < matching.getNumberOfAdvisers();a++)
-    		{
-    			System.out.print(unSortedList.get(a).getNum() + " ");    			
-    		}
+   
     		//generate preference list
-    		adv.creatPrefList(unSortedList);
-    		
-    		System.out.println("\nsorted: ");
-    		for(int b= 0; b < matching.getNumberOfAdvisers();b++)
-    		{
-    			System.out.print(adv.prefList.get(b).getNum() + " ");    			
-    		}
-    		
-    		
-    		adv.freeFromLink();
-    		
+    		adv.creatPrefList(unSortedList);    		    		
+    		adv.freeFromLink(); //set advisor linkage to false    		
     		adv.setNum(i);
+    		
     		//add to adviserlist
     		AdviserList.add(adv);
     		
-    	}
-    	
-    	return AdviserList;
-    		
+    	}    	
+    	return AdviserList;	
     }
     
     public void StudentPreferenceListMaker(ArrayList<Student> studentList, ArrayList<Adviser> advList, Matching matching) {
@@ -278,10 +238,8 @@ public class Program1 extends AbstractProgram1 {
 				int advIndex = matching.getStudentPreference().get(i).get(j);	
 				studentList.get(i).addToPrefList(advList.get(advIndex));
 
-			}
-			
-		}
-    	
+			}			
+		}    	
     }
     
     public int findFreeStudent(ArrayList<Student> list) {
