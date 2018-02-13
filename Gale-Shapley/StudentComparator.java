@@ -20,6 +20,7 @@ public class StudentComparator implements Comparator<Student> {
 	@Override
 	public int compare(Student s1, Student s2) {
 		// TODO Auto-generated method stub
+		
 		if(s1.getGPA() > s2.getGPA()) {
 			return 1;
 		}
@@ -35,10 +36,10 @@ public class StudentComparator implements Comparator<Student> {
 			double distanceS2 = this.p.distance(s2.getLoc());
 			
 			if(distanceS1 < distanceS2) {
-				return -1;
+				return 1;
 			}
 			else if(distanceS2 < distanceS1) {
-				return 1;
+				return -1;
 			}
 			else {
 				//we done goofed

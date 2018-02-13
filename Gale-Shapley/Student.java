@@ -12,7 +12,7 @@ public class Student {
 	private Adviser adv;
 	private int num;
 	
-	ArrayList<Adviser> proposition = new ArrayList<Adviser>();
+	ArrayList<Integer> proposition = new ArrayList<Integer>();
 	
 	ArrayList<Adviser> prefList = new ArrayList<Adviser>();
 	

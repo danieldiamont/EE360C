@@ -26,7 +26,8 @@ public class Program1 extends AbstractProgram1 {
      * Stable Marriage problem. Study the description of a Matching in the
      * project documentation to help you with this.
      */
-    public boolean isStableMatching(Matching marriage) {
+    
+	public boolean isStableMatching(Matching marriage) {
         /**
          * Given a matching, for each pair in the matching, check to see if the Adviser
          * and the student could be better off
@@ -47,12 +48,13 @@ public class Program1 extends AbstractProgram1 {
     		int currentAdviser = student_matching.get(student);
     	
     		//check the preference list of each student for the list of Advisers
-    		for(int Adviser = 0; Adviser < student_matching.size(); Adviser++) {
+    		for(int i = 0; i < student_matching.size(); i++) {
     			
-    			int possibleAdviser = marriage.getStudentPreference().get(student).get(Adviser);
+    			int possibleAdviser = marriage.getStudentPreference().get(student).get(i);    			
     			
     			//if there exists an Adviser that is better than the current Adviser
-    			if(possibleAdviser < currentAdviser) {
+    			if(marriage.getStudentPreference().get(student).indexOf(possibleAdviser) <
+    					marriage.getStudentPreference().get(student).indexOf(currentAdviser)) {
     				//check if that Adviser prefers the current student over possibleStudent
     					//need to track GPA and location of current student
     					//need to track professor location
@@ -61,10 +63,11 @@ public class Program1 extends AbstractProgram1 {
     				int possibleStudent = student_matching.indexOf(possibleAdviser);
     				double possibleStudentGPA = marriage.getStudentGPAs().get(possibleStudent);
     				
-    				if(currentStudentGPA > possibleStudentGPA) {
+    				if(currentStudentGPA > possibleStudentGPA) {    					
     					return false;
     				}
-    				else if(possibleStudentGPA == currentStudentGPA) {
+    				else if(Double.compare(currentStudentGPA, possibleStudentGPA) == 0) {
+    					
     					if(currentStudentIsCloser(marriage,student,
     							possibleStudent,possibleAdviser)) {
     						/*
@@ -83,7 +86,7 @@ public class Program1 extends AbstractProgram1 {
     					/*
     					 * return true because possibleAdviser does not prefer currentStudent
     					 */
-    					return true;
+    					//do nothing
     				}
     			}   				
     		}
@@ -100,85 +103,132 @@ public class Program1 extends AbstractProgram1 {
      */
     public Matching stableMarriageGaleShapley(Matching marriage) {
     	
-    	/*
-    	 * Create student lists and adviser lists from file information.
-    	 * 
-    	 * Generate all the preference lists, stored in each Adviser and Student object
-    	 */
-    	ArrayList<Student> studentList = studentListMaker(marriage);
-    	ArrayList<Adviser> adviserList = AdviserListMaker(marriage, studentList);
-    	StudentPreferenceListMaker(studentList, adviserList, marriage);
+    	int numAdvisers = marriage.getNumberOfAdvisers();
+    	int numStudents = marriage.getNumberOfStudents();
     	
-    	/*
-    	 * Begin modified Gale-Shapley algorithm
-    	 */
-    	int studentIndex = findFreeStudent(studentList);
-    	int adviserIndex = 0;
+    	//declare adviser preference list
+    	ArrayList<ArrayList<Integer>> adviserPreferenceList = new ArrayList<ArrayList<Integer>>();    	
+    	ArrayList<Boolean> adviserEngaged = new ArrayList<Boolean>(Collections.nCopies(numAdvisers, false));    	
+    	ArrayList<Boolean> studentEngaged = new ArrayList<Boolean>(Collections.nCopies(numStudents, false));
+    	ArrayList<ArrayList<Boolean>> adviserProposalList = new ArrayList<ArrayList<Boolean>>();
+    	for(int i = 0; i < numAdvisers; i++) {
+    		ArrayList<Boolean> list = new ArrayList<Boolean>(Collections.nCopies(numAdvisers, false));
+    		adviserProposalList.add(i, list);
+    	}
+    	ArrayList<Integer> new_student_matching = new ArrayList<Integer>(Collections.nCopies(numStudents, -1));
     	
-    	while(studentIndex != -1) {
-    		
-    		Student student = studentList.get(studentIndex);
-    		
-    		Adviser adviser = null;
-    		boolean hasProposed = true;
-    		
-    		while(hasProposed) {
-    			adviser = student.prefList.get(adviserIndex);
-    			if (!student.proposition.contains(adviser) || student.proposition.size() == 0) {
-    				hasProposed = false;
-    			}
-    			else {
-        			adviserIndex++;
-    			}
-    			
-    		}
-    	    		
-    		adviser = student.prefList.get(adviserIndex);
-    		
-    		student.proposition.add(adviser);
-    		
-    		if(adviser.isFree()) {
-    			
-    			student.linkWithAdviser(adviser);
-    			adviser.linkWithStudent(student);    			
-    			studentIndex = findFreeStudent(studentList);
-    			adviserIndex = 0;
-    		}
-    		else { //advisor has a student
-    			
-    			Student studentPrime = adviser.returnStudent(); //advisor's student
-    			
-    			ArrayList<Student> list = new ArrayList<Student>();
-    			list.add(studentPrime);
-    			list.add(student);
-    			Collections.sort(list,new StudentComparator(adviser.getLoc()));
-    			
-    			if(list.get(0).equals(student)) {
-
-    				studentPrime.freeFromLink();
-    				student.linkWithAdviser(adviser);
-        			adviser.linkWithStudent(student);
-        			studentIndex = findFreeStudent(studentList);
-        			adviserIndex = 0;
-    			}
-    			else {
-    				studentIndex = findFreeStudent(studentList);
-    				adviserIndex = 0;
-    			}
-    		}
-    		
+    	//sort students by GPA
+    	ArrayList<Double> studentList = new ArrayList<Double>();    	
+    	for (int i = 0; i < marriage.getNumberOfStudents(); i++) {
+    		studentList.add(i, marriage.getStudentGPAs().get(i));
     	}    	
+    	Collections.sort(studentList);
+    	Collections.reverse(studentList);
     	
-    	ArrayList<Integer> resMatching = new ArrayList<Integer>();
-    	
-    	for(int i = 0; i < studentList.size(); i++) {
+    	//for each adviser
+    	for(int i = 0; i < marriage.getNumberOfAdvisers(); i++) {
+    		ArrayList<Double> calcList = new ArrayList<Double>(studentList);
+    		ArrayList<Integer> personalizedStudentList = new ArrayList<Integer>();    		
     		
-    		resMatching.add(adviserList.indexOf(studentList.get(i).returnAdviser()));
+    		//for each student
+    		for(int j = 0; j < marriage.getNumberOfStudents(); j++) {
+    			
+    			//check if we have ties
+    			int firstIndex = calcList.indexOf(marriage.getStudentGPAs().get(j));
+    			int lastIndex = calcList.lastIndexOf(marriage.getStudentGPAs().get(j));
+    			
+    			if(firstIndex != lastIndex) {
+    				//if this case is true, we have ties
+    				int numTies = lastIndex - firstIndex + 1;
+    				
+    				//create a queue, add to front index of closer student, add to back index of farthest student
+    				LinkedList<Integer> queue = new LinkedList<Integer>();
+    				
+    				int index = firstIndex + 1;
+    				
+    				for(int counter = 0; counter < numTies; counter++) {
+    					
+    					int max = firstIndex;
+    					
+    					if(studentIsCloser(marriage, index,max,i)) {
+    						max = index;
+    					}
+    				}
+    				
+    				//add all these guys to the adviser's personalized list
+    			}
+    			else {
+    				personalizedStudentList.add(j);
+    			}
+    		}
+    		adviserPreferenceList.add(i, personalizedStudentList);
     	}
     	
-    	marriage.setResidentMatching(resMatching);
+    	/*
+    	 * begin GS algo
+    	 */
+    	boolean fullMatching = false;
     	
-        return marriage;
+    	while(!fullMatching) {
+    		
+    		for(int adviser = 0; adviser < marriage.getNumberOfAdvisers(); adviser++)
+    		{
+    			int studentIndex = 0;
+    			
+    			while(adviserEngaged.get(adviser) == false) //if adviser is free
+    			{
+    				//chose a student
+    				int student = adviserPreferenceList.get(adviser).get(studentIndex); //get the student at the top of the preference list
+    				
+    				if(adviserProposalList.get(adviser).get(studentIndex) == false) { //if adviser has not proposed to student
+    					
+    					adviserProposalList.get(adviser).add(studentIndex, true);
+    					
+    					if(studentEngaged.get(student) == false) { //if student is free
+    						//become pairing
+    						studentEngaged.set(student, true);
+    						adviserEngaged.set(adviser, true);
+    						new_student_matching.set(student, adviser);
+    					}
+    					else { //student is already engaged
+    						
+    						int curAdviser = new_student_matching.get(student);
+    						
+    						//if student prefers this adviser over his current adviser
+    						if(marriage.getStudentPreference().get(student).indexOf(adviser) <
+    								marriage.getStudentPreference().get(student).indexOf(curAdviser)) {
+    							
+    							//break off current engagement and make new engagement
+    							adviserEngaged.set(curAdviser, false);
+    							studentEngaged.set(student,true);
+    							adviserEngaged.set(adviser,true);
+    							new_student_matching.set(student,adviser);
+    							
+    						}
+    						else {
+    							studentIndex++;
+    						}
+    					}
+    					
+    				}
+    				else {
+    					//if adviser proposed to student already, pick another student
+    					studentIndex++;
+    				}
+    				
+    			}
+    		}
+    		//for all advisers, if at least one adviser is free, we haven't finished the algorithm
+			fullMatching = true;
+			for(int i = 0; i < marriage.getNumberOfAdvisers(); i++) {
+				if(adviserEngaged.get(i) == false)
+					fullMatching = false;
+			}
+    	}
+    	
+    	marriage.setResidentMatching(new_student_matching);
+    	
+    	return marriage;
     }
     
     
@@ -198,6 +248,7 @@ public class Program1 extends AbstractProgram1 {
     	}
     	
     	Collections.sort(studentList, new StudentComparator()); //sort student list in ascending GPA order
+    	Collections.reverse(studentList); //sorted list in descending order
     	
     	for(int i= 0; i < matching.getNumberOfStudents(); i++) {
     		studentList.get(i).setNum(i);
@@ -210,22 +261,37 @@ public class Program1 extends AbstractProgram1 {
     	
     	ArrayList<Adviser> AdviserList = new ArrayList<Adviser>();
     	
-    	for(int i = 0; i < matching.getNumberOfAdvisers(); i++) {
-    	
+//    	for(int i = 0; i < matching.getNumberOfAdvisers(); i++) {
+//    	
+//    		Adviser adv = new Adviser();
+//    		
+//    		//set location
+//    		adv.setLoc(matching.getAdviserLocations().get(i));
+//   
+//    		//generate preference list
+//    		adv.creatPrefList(unSortedList);    		    		
+//    		adv.freeFromLink(); //set advisor linkage to false    		
+//    		adv.setNum(matching.getStudentPreference().get(arg0));
+//    		
+//    		//add to adviserlist
+//    		AdviserList.add(adv);
+//    		
+//    	}    	
+    	for(Integer adviserIndex : matching.getStudentPreference().get(0)) {
     		Adviser adv = new Adviser();
     		
     		//set location
-    		adv.setLoc(matching.getAdviserLocations().get(i));
+    		adv.setLoc(matching.getAdviserLocations().get(adviserIndex));
    
     		//generate preference list
     		adv.creatPrefList(unSortedList);    		    		
     		adv.freeFromLink(); //set advisor linkage to false    		
-    		adv.setNum(i);
+    		adv.setNum(adviserIndex);
     		
     		//add to adviserlist
     		AdviserList.add(adv);
     		
-    	}    	
+    	}
     	return AdviserList;	
     }
     
@@ -244,39 +310,38 @@ public class Program1 extends AbstractProgram1 {
     
     public int findFreeStudent(ArrayList<Student> list) {
     	
-    	for(int i = 0; i < list.size(); i++) {
-    		if(list.get(i).isFree() == true) {
-    			return i;
+    	for(Student student : list) {
+    		if(student.isFree() == true) {
+    			return student.getNum();
     		}
     	}
     	return -1; //there does not exist a free student
     }
     
-    public int bestChoice(ArrayList<Student> list) {
-    	    	
-    	for(int i = 0; i < list.size(); i++) {
-    		if(list.get(i).isFree() == true) {
-    			return list.get(i).getNum();
+    public int findFreeAdviser(ArrayList<Adviser>list) {
+    	for(Adviser adviser: list) {
+    		if(adviser.isFree() == true) {
+    			return adviser.getNum();
     		}
     	}
-    	
     	return -1;
     }
     
-    public boolean currentStudentIsCloser(Matching marriage, 
+    
+    public boolean studentIsCloser(Matching marriage, 
 			int student, int possibleStudent, int possibleAdviser) {
 	
-    	Coordinate coord = marriage.getStudentLocations().get(student);
-    	Point2D currentStudentLoc = new Point2D.Double(coord.x,coord.y);
+    	Coordinate curStudentCoord = marriage.getStudentLocations().get(student);
+    	Point2D currentStudentLoc = new Point2D.Double(curStudentCoord.x,curStudentCoord.y);
     	
-    	coord = marriage.getAdviserLocations().get(possibleAdviser);
-    	Point2D possibleAdviserLoc = new Point2D.Double(coord.x,coord.y);
+    	Coordinate adviserCoord = marriage.getAdviserLocations().get(possibleAdviser);
+    	Point2D possibleAdviserLoc = new Point2D.Double(adviserCoord.x,adviserCoord.y);
     	
-    	coord = marriage.getStudentLocations().get(possibleStudent);
-    	Point2D possibleStudentLoc = new Point2D.Double(coord.x,coord.y);
+    	Coordinate studPrimeCoord = marriage.getStudentLocations().get(possibleStudent);
+    	Point2D possibleStudentLoc = new Point2D.Double(studPrimeCoord.x,studPrimeCoord.y);
     	
-    	double curStudentDist = possibleAdviserLoc.distance(currentStudentLoc);
-    	double possibleStudentDist = possibleAdviserLoc.distance(possibleStudentLoc);
+    	double curStudentDist = Math.abs(possibleAdviserLoc.distance(currentStudentLoc));
+    	double possibleStudentDist = Math.abs(possibleAdviserLoc.distance(possibleStudentLoc));
 		
 		if(curStudentDist < possibleStudentDist)
 		{
