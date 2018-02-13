@@ -12,9 +12,9 @@ public class Student {
 	private Adviser adv;
 	private int num;
 	
-	ArrayList<Integer> proposition = new ArrayList<Integer>();
+	ArrayList<Boolean> proposition = new ArrayList<Boolean>();
 	
-	ArrayList<Adviser> prefList = new ArrayList<Adviser>();
+	ArrayList<Integer> prefList = new ArrayList<Integer>();
 	
 	public Student() {
 		this.gpa = -100;
@@ -46,7 +46,7 @@ public class Student {
 		this.location = new Point2D.Double(x,y);
 	}
 	
-	public void addToPrefList(Adviser adv) {
+	public void addToPrefList(Integer adv) {
 		this.prefList.add(adv);
 	}
 	

@@ -20,7 +20,6 @@ public class StudentComparator implements Comparator<Student> {
 	@Override
 	public int compare(Student s1, Student s2) {
 		// TODO Auto-generated method stub
-		
 		if(s1.getGPA() > s2.getGPA()) {
 			return 1;
 		}
@@ -32,8 +31,8 @@ public class StudentComparator implements Comparator<Student> {
 		}
 		else { //their GPA's are equal and we are sorting with location enabled as a parameter
 			
-			double distanceS1 = this.p.distance(s1.getLoc());
-			double distanceS2 = this.p.distance(s2.getLoc());
+			double distanceS1 = Math.abs(this.p.distance(s1.getLoc()));
+			double distanceS2 = Math.abs(this.p.distance(s2.getLoc()));
 			
 			if(distanceS1 < distanceS2) {
 				return 1;

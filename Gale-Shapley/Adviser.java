@@ -11,7 +11,6 @@ public class Adviser {
 	private Student std;
 	
 	ArrayList<Student> prefList;
-	ArrayList<Integer> proposition = new ArrayList<Integer>();
 	
 	public Adviser() {
 		
@@ -29,7 +28,7 @@ public class Adviser {
 	}
 	
 	public void creatPrefList(ArrayList<Student> listOfStudents) {
-				
+		
 		this.prefList = new ArrayList<Student>(listOfStudents);
 		
 		Collections.sort(this.prefList, new StudentComparator(this.location));
