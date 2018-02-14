@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class Program1 extends AbstractProgram1 {
 	
@@ -30,7 +31,7 @@ public class Program1 extends AbstractProgram1 {
     	
     	ArrayList<Integer>student_matching = marriage.getStudentMatching();
     	
-    	//for each student in the student_matching arraylist...
+    	//for each student in the student_matching arrayList...
     	for(int student = 0; student < student_matching.size(); student++)
     	{
     		int currentAdviser = student_matching.get(student);
@@ -98,16 +99,22 @@ public class Program1 extends AbstractProgram1 {
     	ArrayList<Student> sortedStudents = new ArrayList<Student>(studentList);			
     	Collections.sort(sortedStudents, new StudentComparator());							//O(n*log(n))
     	
+    	//create Queue of free students
+    	Queue<Student> studentQueue = new LinkedList<Student>();
+    	
+    	//add all students to the Queue									`			//O(n)
+    	for(int i = 0; i < sortedStudents.size(); i++) { 
+    		studentQueue.add(sortedStudents.get(i));
+    	}
+    	
+    	//
     	/*
-    	 * Begin modified Gale-Shapley algorithm O(n^2)
+    	 * Begin modified Gale-Shapely algorithm O(n^2)
     	 */
-    	boolean fullMatching = false;
-    	while(!fullMatching) {
-    		
-    		int studentIndex = findFreeStudent(studentList);
-    		
-    		//choose a free student
-    		Student student = studentList.get(studentIndex);
+    	while(!studentQueue.isEmpty()) {
+    		    		
+    		//choose a free student from the queue
+    		Student student = studentQueue.peek(); //retrieve but do not remove student
     		
     		Adviser adviser;
     		
@@ -129,6 +136,7 @@ public class Program1 extends AbstractProgram1 {
     					//create pairing
     					adviser.linkWithStudent(student);
     					student.linkWithAdviser(adviser);
+    					studentQueue.remove();
     				}
     				else { //if adviser is engaged
     					Student studentPrime = adviser.returnStudent(); //get adviser's current partner
@@ -142,8 +150,10 @@ public class Program1 extends AbstractProgram1 {
     					if(comp.compare(student, studentPrime) > 0) {
     						//if so, create pairing
     						studentPrime.freeFromLink();
+    						studentQueue.add(studentPrime);
     						adviser.linkWithStudent(student);
     						student.linkWithAdviser(adviser);
+    						studentQueue.remove();
     					}
     				}
         			
@@ -153,17 +163,14 @@ public class Program1 extends AbstractProgram1 {
     				chooseAdviser++;    				
     			}
     		}
-    		
-    		if(findFreeStudent(studentList) == -1) {
-    			fullMatching = true;
-    		}
     	}
     	    		
     		
+    	//create arrayList to insert the newly made matching
+    	ArrayList<Integer> resMatching = new ArrayList<Integer>(Collections.nCopies(marriage.getNumberOfStudents(), -1));		//O(n)
     	
-    	ArrayList<Integer> resMatching = new ArrayList<Integer>(Collections.nCopies(marriage.getNumberOfStudents(), -1));
-    	
-    	for(Student student : studentList) {
+    	//fill up the arrayList with all the matches								//O(n)
+    	for(Student student : sortedStudents) {
     		resMatching.set(student.getNum(), student.returnAdviser().getNum());
     	}
     	
@@ -173,7 +180,13 @@ public class Program1 extends AbstractProgram1 {
     	
     }
     
-    
+    /**
+     * This method takes a matching and generates a student object with an adviser
+     * preference list for each student. Time complexity is O(n^2).
+     * @param matching has the original problem to be solved. This contains
+     * 	all the necessary information to generate the Student objects.
+     * @return
+     */
     public ArrayList<Student> studentListMaker(Matching matching){
     	
     	//create arrayList of students
@@ -188,19 +201,24 @@ public class Program1 extends AbstractProgram1 {
     		student.setNum(i);
     		studentList.add(student);
     		
+    		//create preference list based on input data
     		for(int j = 0; j < matching.getNumberOfAdvisers(); j++) {
 				
 				int advIndex = matching.getStudentPreference().get(i).get(j);	
 				studentList.get(i).addToPrefList(advIndex);
 				studentList.get(i).proposition.add(false);
     		}
-    	}
-    	
-    	//Collections.sort(studentList, new StudentComparator());
-    	
+    	}    	
     	return studentList;
     }
-    	
+    
+    /**
+     * this method takes a matching and generates Adviser objects for 
+     * each adviser. Time complexity is O(n).
+     * @param matching has the original problem to be solved. This contains
+     * 	all the necessary information to generate the Student objects.
+     * @return
+     */
     public ArrayList<Adviser> AdviserListMaker(Matching matching){    	
     	
     	ArrayList<Adviser> AdviserList = new ArrayList<Adviser>();
@@ -221,7 +239,14 @@ public class Program1 extends AbstractProgram1 {
     	return AdviserList;	
     }
     
-    public int findFreeStudent(ArrayList<Student> list) {
+    /**
+     * this function sorts through an array of student objects to determine
+     * if there exists at least one student that is still free.
+     * Used to check for termination in modified Gale-Shapely algorithm
+     * @param list contains the array of student objects
+     * @return the index of the found student or -1 if all students are engaged
+     */
+    public int findFreeStudent(ArrayList<Student> list) {			//O(n)
     	
     	for(int i = 0; i < list.size(); i++) {
     		if(list.get(i).isFree() == true) {
@@ -231,6 +256,18 @@ public class Program1 extends AbstractProgram1 {
     	return -1; //there does not exist a free student
     }
     
+    /**
+     * this function takes a matching, the indices of two students, and
+     * the index of an adviser, and determines if the first student is closer
+     * to the adviser in comparison to the second student.
+     * @param marriage contains all the necessary information to compute the location
+     * of all parties involved.
+     * @param student is the index of the student we being evaluated
+     * @param possibleStudent is the index of the student we are evaluating against
+     * @param possibleAdviser is the index of the adviser both students' locations are being
+     * compared to.
+     * @return
+     */
     public boolean currentStudentIsCloser(Matching marriage, 
 			int student, int possibleStudent, int possibleAdviser) {
 	
