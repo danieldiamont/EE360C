@@ -41,7 +41,7 @@ public class StudentComparator implements Comparator<Student> {
 				return -1;
 			}
 			else {
-				//we done goofed
+				//should not reach this case
 				return 0;
 			}
 		}

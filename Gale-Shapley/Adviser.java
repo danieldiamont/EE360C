@@ -10,31 +10,31 @@ public class Adviser {
 	private int num;
 	private Student std;
 	
-	ArrayList<Student> prefList;
+	//ArrayList<Student> prefList;
 	
 	public Adviser() {
 		
 		this.location = null;
-		this.prefList = null;
+		//this.prefList = null;
 	}
 	
-	public Adviser(Point2D loc, ArrayList<Student> list) {
+	public Adviser(Point2D loc) {
 		this.location = loc;
-		this.prefList = list;
+		//this.prefList = list;
 	}
 	
 	public Point2D getLoc() {
 		return this.location;
 	}
 	
-	public void creatPrefList(ArrayList<Student> listOfStudents) {
-		
-		this.prefList = new ArrayList<Student>(listOfStudents);
-		
-		Collections.sort(this.prefList, new StudentComparator(this.location));
-		Collections.reverse(this.prefList);
-		
-	}
+//	public void creatPrefList(ArrayList<Student> listOfStudents) {
+//		
+//		this.prefList = new ArrayList<Student>(listOfStudents);
+//		
+//		Collections.sort(this.prefList, new StudentComparator(this.location));
+//		Collections.reverse(this.prefList);
+//		
+//	}
 	
 	public void setLoc(Coordinate coord) {
 		double x = coord.x;

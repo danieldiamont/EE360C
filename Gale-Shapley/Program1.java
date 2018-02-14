@@ -8,19 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 
-/**
- * Your solution goes in this class.
- * 
- * Please do not modify the other files we have provided for you, as we will use
- * our own versions of those files when grading your project. You are
- * responsible for ensuring that your solution works with the original version
- * of all the other files we have provided for you.
- * 
- * That said, please feel free to add additional files and classes to your
- * solution, as you see fit. We will use ALL of your additional files when
- * grading your solution.
- */
 public class Program1 extends AbstractProgram1 {
+	
     /**
      * Determines whether a candidate Matching represents a solution to the
      * Stable Marriage problem. Study the description of a Matching in the
@@ -102,11 +91,15 @@ public class Program1 extends AbstractProgram1 {
     	 * 
     	 * Generate all the preference lists, stored in each Adviser and Student object
     	 */
-    	ArrayList<Student> studentList = studentListMaker(marriage);
-    	ArrayList<Adviser> adviserList = AdviserListMaker(marriage, studentList);
+    	ArrayList<Student> studentList = studentListMaker(marriage); 						//O(n^2)
+    	ArrayList<Adviser> adviserList = AdviserListMaker(marriage);						//O(n)
+    	
+    	//sort the students in terms of GPA (using TimSort O(n*log(n))
+    	ArrayList<Student> sortedStudents = new ArrayList<Student>(studentList);			
+    	Collections.sort(sortedStudents, new StudentComparator());							//O(n*log(n))
     	
     	/*
-    	 * Begin modified Gale-Shapley algorithm
+    	 * Begin modified Gale-Shapley algorithm O(n^2)
     	 */
     	boolean fullMatching = false;
     	while(!fullMatching) {
@@ -140,8 +133,13 @@ public class Program1 extends AbstractProgram1 {
     				else { //if adviser is engaged
     					Student studentPrime = adviser.returnStudent(); //get adviser's current partner
     					
+    					//create comparator
+    					StudentComparator comp = new StudentComparator();
+    					comp.enableLoc = true;
+    					comp.p = adviser.getLoc();
+    					
     					//check if adviser prefers student over studentPrime
-    					if(adviser.prefList.indexOf(student) < adviser.prefList.indexOf(studentPrime)) {
+    					if(comp.compare(student, studentPrime) > 0) {
     						//if so, create pairing
     						studentPrime.freeFromLink();
     						adviser.linkWithStudent(student);
@@ -203,7 +201,7 @@ public class Program1 extends AbstractProgram1 {
     	return studentList;
     }
     	
-    public ArrayList<Adviser> AdviserListMaker(Matching matching, ArrayList<Student> unSortedList){    	
+    public ArrayList<Adviser> AdviserListMaker(Matching matching){    	
     	
     	ArrayList<Adviser> AdviserList = new ArrayList<Adviser>();
     	
@@ -212,14 +210,11 @@ public class Program1 extends AbstractProgram1 {
     		Adviser adv = new Adviser();
     		
     		//set location
-    		adv.setLoc(matching.getAdviserLocations().get(i));
-   
-    		//generate preference list
-    		adv.creatPrefList(unSortedList);    		    		
+    		adv.setLoc(matching.getAdviserLocations().get(i));    		    		
     		adv.freeFromLink(); //set advisor linkage to false    		
     		adv.setNum(i);
     		
-    		//add to adviserlist
+    		//add to adviser List
     		AdviserList.add(adv);
     		
     	}    	
