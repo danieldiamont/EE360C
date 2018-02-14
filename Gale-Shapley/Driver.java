@@ -122,11 +122,24 @@ public class Driver {
         boolean isStable;
 
         if (testGS) {
-            Matching GSMatching = program.stableMarriageGaleShapley(problem);
-            System.out.println(GSMatching);
-            isStable = program.isStableMatching(GSMatching);
-            System.out.printf("%s: stable? %s\n", "Gale-Shapley", isStable);
-            System.out.println();
+        	long nanoSum = 0;
+        	int testedRuns = 1000;
+        	for(int i = 0; i < testedRuns; i++)
+        	{
+        		long begin = System.nanoTime();
+        		Matching GSMatching = program.stableMarriageGaleShapley(problem);
+        		long diff = System.nanoTime()-begin;
+        		nanoSum += diff;
+        	}
+        	System.out.println("Gale-Shapley");
+        	System.out.println("nanoSum: " + nanoSum + " ns");
+        	System.out.println("Average time: " + nanoSum/testedRuns + " ns");
+            
+//        	Matching GSMatching = program.stableMarriageGaleShapley(problem);
+//            System.out.println(GSMatching);
+//            isStable = program.isStableMatching(GSMatching);
+//            System.out.printf("%s: stable? %s\n", "Gale-Shapley", isStable);
+//            System.out.println();
         }
 
         if (testBruteForce) {
