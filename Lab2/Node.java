@@ -14,20 +14,24 @@ import java.util.List;
  */
 public class Node {
 	
+	//constants used to define distances (time/capacity)
 	public static final Integer NEG_INFINITY = Integer.MIN_VALUE;
 	public static final Integer INFINITY = Integer.MAX_VALUE;
 
+	//adjacency list
 	private List<Edge> adj;
 	private List<Node> adjNode;
 	
-	private int dist;
-	
-	private Node predecessor;
-	
+	private int dist;	
+	private Node predecessor;	
 	private Integer portID;
 	
 	
-	//standard parameter-less constructor
+	/**
+	 * Creates a node with an empty adj list, infinite distance,
+	 * null predecessor, and stores the unique ID of the node
+	 * @param portID unique ID of the port
+	 */
  	public Node(int portID) {
 		this.adj = new ArrayList<Edge>();
 		this.adjNode = new ArrayList<Node>();
@@ -35,50 +39,78 @@ public class Node {
 		this.predecessor = null;
 		this.portID = new Integer(portID);
 	}
-	//constructor
-	public Node(List<Edge> adj, int dist, Node predecessor) {
-		
-		this.adj = adj;
-		this.dist = dist;
-		this.predecessor = predecessor;
-	}
 	
+	/**
+	 * Adds an edge to the node's adjacency list
+	 * @param edge
+	 */
 	public void addToAjdList(Edge edge) {
 		adj.add(edge);
 	}
 	
+	/**
+	 * 
+	 * @return the list of nodes that are adjacent to this node.
+	 */
 	public List<Node> getNodes(){
 		return this.adjNode;
 	}
 	
+	/**
+	 * Adds a node to the adjacency list of this node
+	 * @param n
+	 */
 	public void addNode(Node n) {
 		adjNode.add(n);
 	}
 	
-	public void setAdjList(List<Edge> adj) {
-		this.adj = adj;
-	}
-	
+	/**
+	 * 
+	 * @return the list of edges that belong to this node
+	 */
 	public List<Edge> getAdjList(){
 		return this.adj;
 	}
 	
+	/**
+	 * 
+	 * @param dist set the distance of this node
+	 */
 	public void setDist(int dist) {
 		this.dist = dist;
 	}
 	
+	/**
+	 * 
+	 * @return the distance of this node
+	 */
 	public int getDist() {
 		return this.dist;
 	}
 	
+	/**
+	 * Set this node's predecessor
+	 * @param node object
+	 */
 	public void setPredecessor(Node node) {
 		this.predecessor = node;
 	}
 	
+	/**
+	 * 
+	 * @return this node's predecessor.
+	 * 
+	 * Will return null if the node has no
+	 * predecessor.
+	 */
 	public Node getPredecessor() {
 		return this.predecessor;
 	}
 	
+	/**
+	 * 
+	 * @return the unique identifier of this node
+	 */
 	public int getID() {
 		return this.portID;
 	}
