@@ -2,7 +2,11 @@
 //Name: Daniel Diamont
 //EID: dd28977
 
-
+/**
+ * This class contains my solution to Part 1 and 2 of Lab 3.
+ * @author Daniel Diamont
+ *
+ */
 public class Program3 {
 
     EconomyCalculator calculator;
@@ -13,7 +17,7 @@ public class Program3 {
         this.vibraniumScenario = null;
     }
 
-    /*
+    /**
      * This method is used in lieu of a required constructor signature to initialize
      * your Program3. After calling a default (no-parameter) constructor, we
      * will use this method to initialize your Program3 for Part 1.
@@ -22,7 +26,7 @@ public class Program3 {
         this.calculator = ec;
     }
 
-    /*
+    /**
      * This method is used in lieu of a required constructor signature to initialize
      * your Program3. After calling a default (no-parameter) constructor, we
      * will use this method to initialize your Program3 for Part 2.
@@ -31,9 +35,11 @@ public class Program3 {
         this.vibraniumScenario = vs;
     }
 
-    /*
+    /**
      * This method returns an integer that is maximum possible gain in the Wakandan economy
      * given a certain amount of Vibranium
+     * 
+     * @return maximum possible gain in the Wakandan economy.
      */
     public int computeGain() {
     	
@@ -43,14 +49,19 @@ public class Program3 {
     	//initialize OPT
     	int [][] OPT = new int [numProjects][numVibranium+1];
     	
+    	//fill up bottom entries in 2D table
     	for(int i = 0; i <= numVibranium; i++) {
     		OPT[numProjects-1][i] = calculator.calculateGain(numProjects-1,	i);
     	}
     	
+    	//for all remaining rows in the table...
     	for(int i = numProjects-2; i >= 0; i--) {
+    		
+    		//for each cell in the specified row
     		for(int j = 0; j <= numVibranium; j++) {
     			int bestBoost = 0;
     			
+    			//maximize the gain over all available investments of vibranium
     			for(int k = 0; k <= j; k++) {
     				int gain = calculator.calculateGain(i, k);
     				int thisBoost = gain + OPT[i+1][j-k];
@@ -58,59 +69,82 @@ public class Program3 {
     					bestBoost = thisBoost;
     				}
     			}
+    			//update table entry
     			OPT[i][j] = bestBoost;
     		}
     	}
     	
+    	//return the max possible gain in the economy
         return OPT[0][numVibranium];
     }
 
-    /*
+    /**
      * This method returns an integer that is the maximum possible dollar value that a thief 
      * could steal given the weight and volume capacity of his/her bag by using the 
      * VibraniumOreScenario instance.
+     * 
+     * @return maximum dollar value that a thief could steal given weight and volume capacity of bag
      */
-     //TODO: Complete this method
      public int computeLoss() {
         
     	 int numOres = vibraniumScenario.getNumOres();
     	 int maxWeight = vibraniumScenario.getWeightCapacity();
     	 int maxVolume = vibraniumScenario.getVolumeCapacity();
     	 
+    	 //initialize 3D table
     	 int OPT[][][] = new int [numOres+1][maxWeight+1][maxVolume+1];
     	 
+    	 //fill up earliest entries in 3D table
     	 for(int w = 0; w <= maxWeight; w++) {
     		 for(int v = 0; v <= maxVolume; v++) {
     			 OPT[0][w][v] = 0;    			
     		 }
     	 }
     	 
+    	 //for all remaining entries in the table
     	 for(int i = 1; i <= numOres; i++) {
+    		 
+    		 //for each possible weight
     		 for(int w = 0; w <= maxWeight; w++) {
+    			 
+    			 //for each possible volume
     			 for(int v = 0; v <= maxVolume; v++) {
     				 VibraniumOre ore = vibraniumScenario.getVibraniumOre(i-1);
-    				    				 
+    				 
+    				 //if the ore is too heavy or takes up more space than available
     				 if(ore.getWeight() > w || ore.getVolume() > v) {
     					 OPT[i][w][v] = OPT[i-1][w][v];
     				 }
     				 else {
+    					 
+    					 //maximize the value of the ore to take given available volume in the bag
     					 int best = Integer.MIN_VALUE;
     					 
     					 for(int k = v; k >= 0; k--) {
     						 int value;
     						 int a = OPT[i-1][w][k];
+    						 
+    						 //choose available volume to use for maximization
     						 int volume = (k-ore.getVolume() < 0) ? v-ore.getVolume() : k-ore.getVolume();
+    						 
         					 int b = ore.getPrice() + OPT[i-1][w-ore.getWeight()][volume];
+        					 
+        					 //maximize
         					 value = (a < b) ?  b : a;
+        					 
+        					 //maximize
         					 best = (best < value) ? value : best;
     					 }
+    					 
+    					 //update table entry
     					 OPT[i][w][v] = best;
     				 }
     			 }
     		 }
     	 }
     	 
-        return OPT[numOres][maxWeight][maxVolume];
+    	 //return the maximum dollar value that a thief could steal given weight and capacity constraints 
+    	 return OPT[numOres][maxWeight][maxVolume];
      }
 }
 
