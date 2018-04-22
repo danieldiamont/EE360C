@@ -35,14 +35,10 @@ public class Program3 {
      * This method returns an integer that is maximum possible gain in the Wakandan economy
      * given a certain amount of Vibranium
      */
-    //TODO: Complete this function
     public int computeGain() {
     	
     	int numProjects = calculator.getNumProjects();
     	int numVibranium = calculator.getNumVibranium();
-    	
-    	System.out.println("num projects: " + numProjects);
-    	System.out.println("num vib: " + numVibranium);
     	
     	//initialize OPT
     	int [][] OPT = new int [numProjects][numVibranium+1];
@@ -66,14 +62,6 @@ public class Program3 {
     		}
     	}
     	
-    	
-    	for(int i = 0; i < numProjects;i++) {
-    		System.out.println();
-    		for(int j = 0; j < numVibranium+1;j++) {
-    			System.out.print(", " + OPT[i][j]);
-    		}
-    	}
-    	System.out.println();
         return OPT[0][numVibranium];
     }
 
@@ -85,7 +73,81 @@ public class Program3 {
      //TODO: Complete this method
      public int computeLoss() {
         
-        return 0;
+    	 int numOres = vibraniumScenario.getNumOres();
+    	 int maxWeight = vibraniumScenario.getWeightCapacity();
+    	 int maxVolume = vibraniumScenario.getVolumeCapacity();
+    	 
+    	 System.out.println("num ores: " + numOres);
+    	 System.out.println("max weight: " + maxWeight);
+    	 System.out.println("max Volume: " + maxVolume);
+    	 //initialize table
+    	 int OPT[][][] = new int [numOres][maxWeight][maxVolume];
+    	 
+    	 System.out.println("\nFunction Table");
+    	 for(int i = 0; i < numOres; i++) {
+    		 VibraniumOre ore = vibraniumScenario.getVibraniumOre(i);
+    		 System.out.println(ore.getPrice() + ", " + ore.getWeight() + ", " + ore.getVolume()); 
+    	 }
+    	 System.out.println();
+    	 
+    	 for(int w = 0; w < maxWeight; w++) {
+    		 for(int v = 0; v < maxVolume; v++) {
+    			 VibraniumOre ore = vibraniumScenario.getVibraniumOre(0);
+    			 if(ore.getWeight() > w || ore.getVolume() > v) {
+					 OPT[0][w][v] = 0;
+				 }
+    			 else {
+    				 OPT[0][w][v] = ore.getPrice(); 
+    			 }
+    		 }
+    	 }
+    	 
+    	 for(int i = 0; i < numOres; i++) {
+    		 System.out.println();
+    		 for(int w = 0; w < maxWeight; w++) {
+    			 System.out.println();
+    			 for(int v = 0; v < maxVolume; v++) {
+    				System.out.print(OPT[i][w][v] + ","); 
+    			 }
+    		 }
+    	 }
+    	 System.out.println();
+    	 
+    	 for(int i = 1; i < numOres; i++) {
+    		 for(int w = 0; w < maxWeight; w++) {
+    			 for(int v = 0; v < maxVolume; v++) {
+    				 VibraniumOre ore = vibraniumScenario.getVibraniumOre(i);
+    				    				 
+    				 try {
+    					 if(ore.getWeight() > w || ore.getVolume() > v) {
+        					 OPT[i][w][v] = OPT[i-1][w][v];
+        				 }
+        				 else {
+        					 int a = OPT[i-1][w][v];
+        					 int b = ore.getPrice() 
+        							 + OPT[i-1][w-ore.getWeight()][v-ore.getVolume()];
+        					 OPT[i][w][v] = (a < b) ?  b : a;     		
+        				 }
+    				 }
+    				 catch(ArrayIndexOutOfBoundsException e) {
+    					 e.printStackTrace();
+    				 }
+    			 }
+    		 }
+    	 }
+    	 
+    	 for(int i = 0; i < numOres; i++) {
+    		 System.out.println();
+    		 for(int w = 0; w < maxWeight; w++) {
+    			 System.out.println();
+    			 for(int v = 0; v < maxVolume; v++) {
+    				System.out.print(OPT[i][w][v] + ","); 
+    			 }
+    		 }
+    	 }
+    	 System.out.println();
+    	 
+        return OPT[numOres-1][maxWeight-1][maxVolume-1];
      }
 }
 
